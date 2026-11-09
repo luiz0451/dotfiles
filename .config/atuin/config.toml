@@ -1,4 +1,4 @@
-# Local only: no account, no sync. Colours follow the terminal ANSI palette (ghostty seoul256).
+# Local only: no account, no sync.
 style = "compact"
 inline_height = 20
 enter_accept = false

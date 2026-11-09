@@ -8,10 +8,9 @@ path=($HOME/.local/bin $path)
 # Homebrew completions (starship, eza, ...) must be on fpath before compinit.
 [[ -d /opt/homebrew/share/zsh/site-functions ]] && fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
 
-# Tools: editor, pager, fzf sources. bat/delta use the base16 theme, i.e. the
-# terminal's ANSI palette, which ghostty's seoul256 theme defines.
+# Tools: editor, pager, fzf sources.
 export EDITOR=nvim VISUAL=nvim
-export BAT_THEME=base16
+export BAT_THEME="Solarized (light)"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANROFFOPT=-c
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
@@ -19,10 +18,6 @@ export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
 export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always --line-range :200 {}'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {}'"
-
-# Theme data (LS_COLORS, fzf, highlighting, suggestions): seoul256 default.
-# Sourced before oh-my-zsh so plugins and completion styles pick it up.
-source "$HOME/.config/zsh/seoul256.zsh"
 
 # 2. Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
@@ -63,6 +58,10 @@ setopt HIST_IGNORE_SPACE                    # a leading space keeps a command ou
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_VERIFY                          # !! expands in the buffer, no blind run
 
+# 4b. ls/eza colors: Solarized-light-safe (a stale dark palette leaked in via tmux's global env)
+export LS_COLORS='di=34:ln=36:ex=32:so=35:pi=33:bd=33:cd=33:or=31:mi=31:su=31:sg=31:tw=34:ow=34:st=34'
+export LSCOLORS='exfxcxdxbxegedabagacad'
+
 # 5. Completion
 zstyle ':completion:*' menu no              # fzf-tab draws the menu
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}' 'r:|[._-]=* r:|=*'
@@ -70,11 +69,11 @@ zstyle ':completion:*' use-cache yes
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' group-name ''
-zstyle ':completion:*:descriptions' format '%F{#bdbdbd}-- %d --%f'
-zstyle ':completion:*:warnings' format '%F{#ffbfbd}no matches for: %d%f'
+zstyle ':completion:*:descriptions' format '-- %d --'
+zstyle ':completion:*:warnings' format 'no matches for: %d'
 
 # fzf-tab: fzf-powered Tab menu. After compinit, before the plugins that wrap
-# widgets (autosuggestions, highlighting). Colours come from FZF_DEFAULT_OPTS.
+# widgets (autosuggestions, highlighting). 
 [[ -r $ZSH/custom/plugins/fzf-tab/fzf-tab.plugin.zsh ]] && source $ZSH/custom/plugins/fzf-tab/fzf-tab.plugin.zsh
 zstyle ':fzf-tab:*' switch-group '<' '>'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --level=2 --color=always $realpath'
@@ -121,7 +120,6 @@ y() {
 
 # Tint the background while an interactive SSH session is open
 # (per pane inside tmux, which would otherwise swallow the OSC 11).
-# #333233 is seoul256 colour 235, one step off the 237 background.
 ssh() {
   if [[ -t 1 ]]; then
     if [[ -n $TMUX ]]; then tmux select-pane -P 'bg=#333233'

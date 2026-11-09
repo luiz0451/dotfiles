@@ -4,30 +4,30 @@ gui:
   showRandomTip: false
   showCommandLog: false
   theme:
-    # seoul256 default (junegunn/seoul256.vim), dark, background 237.
+    # solarized light (Ethan Schoonover).
     activeBorderColor:
-      - "#e09b99"
+      - "#268bd2"
       - bold
     inactiveBorderColor:
-      - "#999872"
+      - "#93a1a1"
     searchingActiveBorderColor:
-      - "#98bede"
+      - "#b58900"
       - bold
     optionsTextColor:
-      - "#bdbdbd"
+      - "#268bd2"
     selectedLineBgColor:
-      - "#730b00"
+      - "#eee8d5"
     inactiveViewSelectedLineBgColor:
-      - "#565656"
+      - "#eee8d5"
     cherryPickedCommitFgColor:
-      - "#f1f1f1"
+      - "#586e75"
     cherryPickedCommitBgColor:
-      - "#007173"
+      - "#6c71c4"
     markedBaseCommitFgColor:
-      - "#f1f1f1"
+      - "#586e75"
     markedBaseCommitBgColor:
-      - "#007299"
+      - "#b58900"
     unstagedChangesColor:
-      - "#ffbfbd"
+      - "#dc322f"
     defaultFgColor:
-      - "#d9d9d9"
+      - "#657b83"

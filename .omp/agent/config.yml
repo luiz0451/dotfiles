@@ -1,10 +1,19 @@
 tui:
   vimMode: true
-symbolPreset: unicode
 composer:
   shape: band
   tokenRate: false
-setupVersion: 2
+setupVersion: 3
+update:
+  auto: true
+symbolPreset: ascii
+statusLine:
+  separator: ascii
+  preset: default
 theme:
-  dark: seoul256
-  light: seoul256
+  dark: light-solarized
+  light: light-solarized
+modelRoles:
+  default: anthropic/claude-opus-5-5:medium
+  smol: anthropic/claude-haiku-5-5:medium
+defaultThinkingLevel: medium

@@ -25,7 +25,7 @@ format = "[$branch]($style)"
 style = "bright-black"
 
 [git_status]
-format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](#ffc0de) ($ahead_behind$stashed)]($style)"
+format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
 style = "cyan"
 conflicted = "​"
 untracked = "​"
@@ -48,7 +48,7 @@ format = "[$bookmark(@$remote)$diverged( \\(+$overflow_count others\\))]($style)
 style = "bright-black"
 
 [jj_status]
-format = "[[(*$all)](#ffc0de)]($style)"
+format = "[[(*$all)](218)]($style)"
 style = "cyan"
 conflicted = "​"
 description_empty = ""

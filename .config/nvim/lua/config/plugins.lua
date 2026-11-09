@@ -98,33 +98,6 @@ require("mini.move").setup({
 vim.opt.termguicolors = true
 require("mini.basics").setup()
 require("mini.icons").setup()
--- Emoji only where one has a real equivalent; everything else keeps the Nerd
--- Font glyph. Wraps MiniIcons.get before mocking devicons so every consumer
--- (lualine, bufferline, starter) is covered.
-local emoji_by_name = {
-    md = "📝", markdown = "📝", txt = "📄", text = "📄",
-    png = "🖼️", jpg = "🖼️", jpeg = "🖼️", gif = "🖼️", webp = "🖼️", svg = "🖼️",
-    pdf = "📕", zip = "📦", tar = "📦", gz = "📦", lock = "🔒",
-    py = "🐍", python = "🐍", rs = "🦀", rust = "🦀", rb = "💎", ruby = "💎",
-    java = "☕", lua = "🌙", sql = "🗄️", html = "🌐", sh = "🐚", zsh = "🐚", bash = "🐚",
-    Dockerfile = "🐳", dockerfile = "🐳", LICENSE = "📜",
-    apple = "🍎", macos = "🍎", linux = "🐧",
-}
-local mini_icons_get = MiniIcons.get
-MiniIcons.get = function(category, name)
-    local glyph, hl, is_default = mini_icons_get(category, name)
-    if category == "directory" then
-        return "📁", hl, is_default
-    end
-    local key = name
-    if category == "file" then
-        key = emoji_by_name[name] and name or name:match("%.([^.]+)$")
-    end
-    if category == "file" or category == "extension" or category == "filetype" or category == "os" then
-        return emoji_by_name[key] or glyph, hl, is_default
-    end
-    return glyph, hl, is_default
-end
 MiniIcons.mock_nvim_web_devicons()
 
 require("lualine").setup({
@@ -257,42 +230,6 @@ require("render-markdown").setup({
         icons = function(context)
             return string.rep("#", context.level) .. " "
         end,
-    },
-    checkbox = {
-        unchecked = { icon = "⬜ " },
-        checked = { icon = "✅ " },
-        custom = {
-            todo = { rendered = "➖ " },
-        },
-    },
-    callout = {
-        note = { rendered = "📝 Note" },
-        tip = { rendered = "💡 Tip" },
-        important = { rendered = "❗ Important" },
-        warning = { rendered = "🚨 Warning" },
-        caution = { rendered = "🛑 Caution" },
-        abstract = { rendered = "📋 Abstract" },
-        summary = { rendered = "📋 Summary" },
-        tldr = { rendered = "📋 Tldr" },
-        info = { rendered = "📘 Info" },
-        todo = { rendered = "🔲 Todo" },
-        hint = { rendered = "💡 Hint" },
-        success = { rendered = "✅ Success" },
-        check = { rendered = "✅ Check" },
-        done = { rendered = "✅ Done" },
-        question = { rendered = "❓ Question" },
-        help = { rendered = "❓ Help" },
-        faq = { rendered = "❓ Faq" },
-        attention = { rendered = "🚨 Attention" },
-        failure = { rendered = "❌ Failure" },
-        fail = { rendered = "❌ Fail" },
-        missing = { rendered = "❌ Missing" },
-        danger = { rendered = "⚡ Danger" },
-        error = { rendered = "❌ Error" },
-        bug = { rendered = "🐛 Bug" },
-        example = { rendered = "📑 Example" },
-        quote = { rendered = "💬 Quote" },
-        cite = { rendered = "💬 Cite" },
     },
     code = {
         sign = false,

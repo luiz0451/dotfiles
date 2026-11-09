@@ -1,4 +1,6 @@
-theme = "seoul256"
+theme = "iTerm2 Solarized Light"
+
+font-family = "Ioskeley Mono"
 
 macos-option-as-alt = true
 title = " "
@@ -17,3 +19,7 @@ keybind = super+0=reset_font_size
 keybind = super+shift+,=reload_config
 keybind = super+enter=toggle_fullscreen
 keybind = super+q=quit
+
+# Text smoothing
+font-thicken = true
+alpha-blending = linear-corrected

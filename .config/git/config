@@ -6,18 +6,9 @@
 
 [delta]
 	navigate = true
+	light = true
+	syntax-theme = Solarized (light)
 	line-numbers = true
-	syntax-theme = base16
-	# seoul256 default: DiffAdd bg 22, DiffDelete bg 95, DiffText bg 52, LineNr 101
-	plus-style = syntax "#006f00"
-	plus-emph-style = syntax "#719872"
-	minus-style = syntax "#9a7372"
-	minus-emph-style = syntax "#730b00"
-	line-numbers-left-style = "#999872"
-	line-numbers-right-style = "#999872"
-	line-numbers-plus-style = "#999872"
-	line-numbers-minus-style = "#999872"
-	line-numbers-zero-style = "#999872"
 
 [merge]
 	conflictstyle = zdiff3
