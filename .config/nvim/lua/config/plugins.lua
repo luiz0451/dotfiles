@@ -351,6 +351,7 @@ local clue = require("mini.clue")
 clue.setup({
     triggers = {
         { mode = { "n", "x" }, keys = "<Leader>" },
+        { mode = { "n", "x" }, keys = "s" },
     },
     clues = {
         { mode = "n", keys = "<Leader>b", desc = "+Buffers" },
@@ -362,6 +363,13 @@ clue.setup({
         { mode = "n", keys = "<Leader>r", desc = "+Config" },
         { mode = "x", keys = "<Leader>f", desc = "+Find" },
         { mode = "x", keys = "<Leader>m", desc = "+Markdown" },
+        { mode = "n", keys = "sa", desc = "Surround add" },
+        { mode = "x", keys = "sa", desc = "Surround add" },
+        { mode = "n", keys = "sd", desc = "Surround delete" },
+        { mode = "n", keys = "sr", desc = "Surround replace" },
+        { mode = "n", keys = "sf", desc = "Surround find right" },
+        { mode = "n", keys = "sF", desc = "Surround find left" },
+        { mode = "n", keys = "sh", desc = "Surround highlight" },
     },
     window = {
         delay = 200,
