@@ -12,7 +12,7 @@ local function gh(repo, name)
 end
 
 vim.pack.add({
-    gh("maxmx03/solarized.nvim", "solarized"),
+    gh("junegunn/seoul256.vim", "seoul256"),
     gh("nvim-lua/plenary.nvim", "plenary"),
     gh("nvim-telescope/telescope.nvim", "telescope"),
     gh("mikavilpas/yazi.nvim", "yazi"),
@@ -29,9 +29,10 @@ vim.pack.add({
     gh("3rd/image.nvim", "image"),
 }, { confirm = false })
 
--- Solarized Light.
-vim.opt.background = "light"
-vim.cmd.colorscheme("solarized")
+-- seoul256, darkest variant (233).
+vim.opt.background = "dark"
+vim.g.seoul256_background = 233
+vim.cmd.colorscheme("seoul256")
 
 require("config.plugins")
 require("config.options")

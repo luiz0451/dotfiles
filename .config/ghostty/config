@@ -1,6 +1,28 @@
-theme = "iTerm2 Solarized Light"
+# seoul256 darkest (bg 233) - https://github.com/junegunn/seoul256.vim
+background = #171717
+foreground = #d9d9d9
+cursor-color = #d9d9d9
+cursor-text = #171717
+selection-background = #005f5f
+selection-foreground = #d9d9d9
+palette = 0=#4e4e4e
+palette = 1=#d68787
+palette = 2=#5f865f
+palette = 3=#d8af5f
+palette = 4=#85add4
+palette = 5=#d7afaf
+palette = 6=#87afaf
+palette = 7=#d0d0d0
+palette = 8=#626262
+palette = 9=#d75f87
+palette = 10=#87af87
+palette = 11=#ffd787
+palette = 12=#add4fb
+palette = 13=#ffafaf
+palette = 14=#87d7d7
+palette = 15=#e4e4e4
 
-font-family = "Ioskeley Mono"
+font-family = "FiraMono Nerd Font"
 
 macos-option-as-alt = true
 title = " "
@@ -9,16 +31,17 @@ shell-integration-features = ssh-terminfo,ssh-env,no-cursor,no-title
 
 # tmux owns tabs, splits and navigation: drop every default binding and keep
 # only what tmux cannot do (clipboard, font size, config reload, window).
-keybind = clear
-keybind = super+c=copy_to_clipboard:mixed
-keybind = super+v=paste_from_clipboard
-keybind = super+==increase_font_size:1
-keybind = super++=increase_font_size:1
-keybind = super+-=decrease_font_size:1
-keybind = super+0=reset_font_size
-keybind = super+shift+,=reload_config
-keybind = super+enter=toggle_fullscreen
-keybind = super+q=quit
+
+# keybind = clear
+# keybind = super+c=copy_to_clipboard:mixed
+# keybind = super+v=paste_from_clipboard
+# keybind = super+==increase_font_size:1
+# keybind = super++=increase_font_size:1
+# keybind = super+-=decrease_font_size:1
+# keybind = super+0=reset_font_size
+# keybind = super+shift+,=reload_config
+# keybind = super+enter=toggle_fullscreen
+# keybind = super+q=quit
 
 # Text smoothing
 font-thicken = true

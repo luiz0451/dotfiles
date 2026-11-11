@@ -11,8 +11,8 @@ statusLine:
   separator: ascii
   preset: default
 theme:
-  dark: light-solarized
-  light: light-solarized
+  dark: seoul256-darkest
+  light: seoul256-darkest
 modelRoles:
   default: anthropic/claude-opus-5-5:medium
   smol: anthropic/claude-haiku-5-5:medium
