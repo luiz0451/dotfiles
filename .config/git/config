@@ -6,8 +6,8 @@
 
 [delta]
 	navigate = true
-	light = true
-	syntax-theme = Solarized (light)
+	dark = true
+	syntax-theme = ansi
 	line-numbers = true
 
 [merge]
