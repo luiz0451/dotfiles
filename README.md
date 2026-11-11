@@ -1,3 +1,3 @@
 ```sh
-curl -fsSL https://raw.githubusercontent.com/luizlisps/dotfiles/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/luiz0451/dotfiles/master/install.sh | bash
 ```
