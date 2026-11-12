@@ -334,6 +334,7 @@ map("<leader>dd", function()
     telescope.diagnostics({ bufnr = 0 })
 end, "Buffer diagnostics")
 map("<leader>dw", telescope.diagnostics, "Workspace diagnostics")
+map("<leader>de", vim.diagnostic.open_float, "Line diagnostic")
 
 map("<leader>l", "<cmd>Lint<cr>", "Lint")
 map("gd", vim.lsp.buf.definition, "Go to definition")
