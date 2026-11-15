@@ -1,0 +1,10 @@
+#!/bin/sh
+# tmux-project: pick a repo under ~/git (host/repo) and switch to its tmux
+# session, created in the repo directory on first use. Outside tmux, attaches.
+root=$HOME/git
+dir=$(cd "$root" && find . -mindepth 2 -maxdepth 2 -type d ! -name '.*' | sed 's|^\./||' | sort |
+    fzf --prompt 'project> ' --preview "eza --tree --level=2 --color=always $root/{}") || exit 0
+# tmux session names cannot contain '.' or ':'.
+name=$(basename "$dir" | tr '.:' '__')
+tmux has-session -t "=$name" 2>/dev/null || tmux new-session -d -s "$name" -c "$root/$dir"
+if [ -n "$TMUX" ]; then tmux switch-client -t "=$name"; else tmux attach-session -t "=$name"; fi

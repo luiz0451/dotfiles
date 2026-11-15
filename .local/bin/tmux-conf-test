@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# Testes de renderizacao da barra do ~/.tmux.conf.
+# Roda um tmux "interno" com a config dentro de um tmux "externo" sem config e
+# le a primeira linha (a barra, status-position top) com capture-pane -e, para
+# ver texto e cores como o terminal os receberia. Sockets isolados: nao toca
+# na sessao em uso.
+# Uso: tmux-conf-test [config]   (padrao: ~/.tmux.conf)
+set -u
+
+conf=${1:-$HOME/.tmux.conf}
+outer=(tmux -L "conf-test-outer-$$" -f /dev/null)
+inner=(tmux -L "conf-test-inner-$$")
+fails=0
+
+cleanup() {
+  "${inner[@]}" kill-server 2>/dev/null
+  "${outer[@]}" kill-server 2>/dev/null
+}
+trap cleanup EXIT
+
+bar() { "${outer[@]}" capture-pane -p -t o | sed -n 1p; }
+bar_sgr() { "${outer[@]}" capture-pane -e -p -t o | sed -n 1p; }
+# 0.6s: com menos, um C-c logo apos Esc as vezes nao chega a fechar o prompt.
+keys() { "${outer[@]}" send-keys -t o "$@"; sleep 0.6; }
+
+ok() { printf 'ok   %s\n' "$1"; }
+fail() { printf 'FAIL %s\n     %q\n' "$1" "$2"; fails=$((fails + 1)); }
+
+# SGR ativo imediatamente antes de "$2" na linha "$1" (sequencias desde o
+# ultimo reset), para comparar o estilo de um trecho.
+sgr_before() {
+  local head=${1%%"$2"*}
+  head=${head##*$'\e[0m'}
+  printf '%s' "$head" | grep -o $'\e\\[[0-9;]*m' | tr -d '\n'
+}
+
+"${outer[@]}" new-session -d -x 100 -y 8 -s o \
+  "env -u TMUX TERM=xterm-256color tmux -L conf-test-inner-$$ -f '$conf' new-session -s main -n one 'sleep 999'"
+"${outer[@]}" set -g status off
+for _ in $(seq 50); do "${inner[@]}" has-session 2>/dev/null && break; sleep 0.1; done
+"${inner[@]}" new-window -d -n two 'sleep 999'
+sleep 0.5
+
+# 1. Prompt (Ctrl-a :) cobre a barra inteira: nada da barra aparece atras.
+keys C-a :
+line=$(bar)
+if [[ $line == :* && $line != *one* && $line != *two* && $line != *main* ]]; then
+  ok 'prompt esconde janelas e blocos'
+else
+  fail 'prompt esconde janelas e blocos' "$line"
+fi
+sgr=$(bar_sgr)
+if [[ $sgr != *$'\e[33m'* && $sgr != *$'\e[93m'* && $sgr != *$'\e[1m'* ]]; then
+  ok 'prompt usa so message-style (sem cores da barra)'
+else
+  fail 'prompt usa so message-style (sem cores da barra)' "$sgr"
+fi
+
+# 2. Mesmo no modo comando do vi (Esc dentro do prompt).
+keys Escape
+line=$(bar)
+if [[ $line == :* && $line != *one* && $line != *main* ]]; then
+  ok 'prompt em modo comando vi esconde a barra'
+else
+  fail 'prompt em modo comando vi esconde a barra' "$line"
+fi
+keys C-c
+
+# 3. Barra volta ao normal ao fechar o prompt.
+line=$(bar)
+if [[ $line == *'@main'*'1:one'*'2:two'* && $line != :* ]]; then
+  ok 'barra restaurada apos o prompt'
+else
+  fail 'barra restaurada apos o prompt' "$line"
+fi
+
+# 4. Rotulo da sessao com a mesma cor em qualquer janela.
+s1=$(sgr_before "$(bar_sgr)" '@main')
+"${inner[@]}" select-window -t :2
+sleep 0.4
+s2=$(sgr_before "$(bar_sgr)" '@main')
+if [[ -n $s1 && $s1 == "$s2" ]]; then
+  ok 'cor de @main nao muda ao trocar de janela'
+else
+  fail 'cor de @main nao muda ao trocar de janela' "janela 1: $s1 / janela 2: $s2"
+fi
+
+# 5. Janela atual destacada (brightred bold), a outra no estilo normal.
+sgr=$(bar_sgr)
+cur=$(sgr_before "$sgr" ' 2:two')
+other=$(sgr_before "$sgr" ' 1:one')
+if [[ $cur == *$'\e[91m'* && $cur == *$'\e[1m'* && $other != *$'\e[91m'* ]]; then
+  ok 'janela atual em destaque'
+else
+  fail 'janela atual em destaque' "atual: $cur / outra: $other"
+fi
+
+# 6. Janela de segundo plano morta: & vermelho, nome volta ao estilo da janela.
+"${inner[@]}" new-window -d -n job "sh -c 'exit 3'"
+"${inner[@]}" set -w -t :job remain-on-exit on
+"${inner[@]}" set -w -t :job @bg 1
+sleep 0.6
+sgr=$(bar_sgr)
+amp=$(sgr_before "$sgr" '&')
+name=${sgr#*&}
+if [[ $amp == *$'\e[31m' && $name == $'\e[93m3:job'* ]]; then
+  ok 'janela @bg morta: & vermelho, nome no estilo da janela'
+else
+  fail 'janela @bg morta: & vermelho, nome no estilo da janela' "$sgr"
+fi
+
+echo
+if ((fails)); then
+  echo "$fails falha(s)"
+  exit 1
+fi
+echo 'todos os testes passaram'

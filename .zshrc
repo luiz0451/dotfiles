@@ -17,6 +17,7 @@ ZSH_THEME=""                                # prompt comes from starship
 zstyle ':omz:update' mode disabled          # update by hand: omz update
 ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-$ZSH_VERSION"
 [[ -d ${ZSH_COMPDUMP:h} ]] || mkdir -p ${ZSH_COMPDUMP:h}
+ZOXIDE_CMD_OVERRIDE=cd                      # zoxide takes over cd: `cd blog` jumps, `cdi` picks
 
 plugins=(
   git
@@ -25,7 +26,7 @@ plugins=(
   sudo                  # Esc Esc: prefix the line with sudo
   extract               # x <archive>
   direnv                # per-directory .envrc
-  zoxide                # z <dir>, zi
+  zoxide                # cd <dir|keyword>, cdi
   fzf                   # keep last: Ctrl-T / Alt-C override vi-mode's (Ctrl-R goes to atuin below)
 )
 
@@ -65,7 +66,6 @@ zstyle ':completion:*:warnings' format 'no matches for: %d'
 [[ -r $ZSH/custom/plugins/fzf-tab/fzf-tab.plugin.zsh ]] && source $ZSH/custom/plugins/fzf-tab/fzf-tab.plugin.zsh
 zstyle ':fzf-tab:*' switch-group '<' '>'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --level=2 --color=always $realpath'
-zstyle ':fzf-tab:complete:(z|zi):*' fzf-preview 'eza --tree --level=2 --color=always $realpath'
 
 # 6. Keys: Up/Down (and k/j in vi command mode) search history for what is typed.
 for _k in '^[[A' '^[OA'; do bindkey $_k history-substring-search-up;   bindkey -M viins $_k history-substring-search-up;   done
@@ -95,6 +95,11 @@ alias lt='eza --tree --level=2'
 alias cat='bat -pp'                         # plain + no pager: like cat, with colours on a tty
 alias vim='nvim'
 alias lg='lazygit'
+alias ompr='omp --resume'
+
+# List the new directory after every cd, `..` or y (interactive shells only: this is ~/.zshrc).
+_ls_after_cd() { eza }
+chpwd_functions+=(_ls_after_cd)
 
 # Open Yazi and cd into the directory it was in when quitting.
 y() {

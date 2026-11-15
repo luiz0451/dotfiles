@@ -91,6 +91,13 @@ EOF
   else
     "$BREW" install --cask ghostty </dev/null
   fi
+
+  # A hand-installed copy in ~/Library/Fonts makes the cask fail; skip then.
+  if compgen -G "$HOME/Library/Fonts/FiraMonoNerdFont-*" >/dev/null; then
+    printf '  FiraMono Nerd Font already installed\n'
+  else
+    "$BREW" install --cask font-fira-mono-nerd-font </dev/null
+  fi
 }
 
 # True when $target already has exactly the content the repo has at HEAD.
@@ -155,6 +162,18 @@ install_zsh_plugins() {
   fi
 }
 
+install_tmux_plugins() {
+  log "tmux plugins (tpm)"
+  local tpm="$HOME/.tmux/plugins/tpm"
+  if [[ -d "$tpm" ]]; then
+    printf '  tpm already installed\n'
+  else
+    git clone --depth=1 https://github.com/tmux-plugins/tpm "$tpm"
+  fi
+  # Reads the @plugin lines from ~/.tmux.conf; no tmux server needed.
+  "$tpm/bin/install_plugins" </dev/null
+}
+
 bootstrap_neovim() {
   log "Neovim plugins and treesitter parsers"
   # init.lua installs the plugins on first start; then build every parser.
@@ -169,6 +188,7 @@ main() {
   install_packages
   install_dotfiles
   install_zsh_plugins
+  install_tmux_plugins
   bootstrap_neovim
   log "Done. Open a new terminal, or run: exec zsh"
 }
