@@ -30,4 +30,7 @@ theme:
 modelRoles:
   default: anthropic/claude-opus-5-5:medium
   smol: anthropic/claude-haiku-5-5:medium
+  optmem: anthropic/claude-haiku-5-5:medium
 defaultThinkingLevel: medium
+dev:
+  autoqaConsent: granted

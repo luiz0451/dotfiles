@@ -16,6 +16,40 @@ vim.pack.add({
 
 -- seoul256, darkest variant (233); this range also selects the dark style.
 vim.g.seoul256_background = 233
+-- seoul256.vim has no diagnostic/modern groups, and it sets Spell* in the GUI
+-- branch only (has('gui_running') is 0 in Neovim), so those kept Neovim's own
+-- pastel palette. Fill them from seoul256's colors, reusing its own choices
+-- (Spell*, diffAdded/diffRemoved, WarningMsg 179) where it has one.
+-- mini.diff/mini.clue/mini.icons/diffview link to these and follow along.
+vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("seoul256-extras", { clear = true }),
+    pattern = "seoul256",
+    callback = function()
+        local c = { red = "#e17899", yellow = "#dfbc72", blue = "#98bede", teal = "#98bcbd", green = "#98bc99" }
+        local kinds = { Error = c.red, Warn = c.yellow, Info = c.blue, Hint = c.teal, Ok = c.green }
+        for kind, color in pairs(kinds) do
+            vim.api.nvim_set_hl(0, "Diagnostic" .. kind, { fg = color })
+            vim.api.nvim_set_hl(0, "DiagnosticUnderline" .. kind, { sp = color, underline = true })
+        end
+        local hl = {
+            DiagnosticDeprecated = { sp = c.red, strikethrough = true },
+            Added = { link = "diffAdded" },
+            Changed = { fg = c.yellow },
+            Removed = { link = "diffRemoved" },
+            CurSearch = { link = "IncSearch" },
+            QuickFixLine = { link = "Visual" },
+            WinBar = { link = "StatusLine" },
+            WinBarNC = { link = "StatusLineNC" },
+            SpellBad = { sp = "#e17899", undercurl = true },
+            SpellCap = { sp = "#98bede", undercurl = true },
+            SpellLocal = { sp = "#bce0ff", undercurl = true },
+            SpellRare = { sp = "#ffc0de", undercurl = true },
+        }
+        for name, spec in pairs(hl) do
+            vim.api.nvim_set_hl(0, name, spec)
+        end
+    end,
+})
 vim.cmd.colorscheme("seoul256")
 
 -- Options ---------------------------------------------------------------------
@@ -119,10 +153,28 @@ vim.api.nvim_create_autocmd({ "TermEnter", "WinResized", "VimResized" }, {
 local telescope_actions = require("telescope.actions")
 require("telescope").setup({
     defaults = {
+        layout_strategy = "horizontal",
+        layout_config = {
+            horizontal = {
+                preview_width = 0.55,
+                -- Telescope hides the preview below 120 columns by default.
+                preview_cutoff = 1,
+            },
+        },
         mappings = {
             i = {
                 ["<C-j>"] = telescope_actions.move_selection_next,
                 ["<C-k>"] = telescope_actions.move_selection_previous,
+                ["<C-d>"] = telescope_actions.preview_scrolling_down,
+                ["<C-u>"] = telescope_actions.preview_scrolling_up,
+                ["<C-f>"] = telescope_actions.preview_scrolling_right,
+                ["<C-b>"] = telescope_actions.preview_scrolling_left,
+            },
+            n = {
+                ["<C-d>"] = telescope_actions.preview_scrolling_down,
+                ["<C-u>"] = telescope_actions.preview_scrolling_up,
+                ["<C-f>"] = telescope_actions.preview_scrolling_right,
+                ["<C-b>"] = telescope_actions.preview_scrolling_left,
             },
         },
     },
@@ -150,6 +202,7 @@ vim.g.treesitter_parsers = {
     "vim",
     "vimdoc",
     "yaml",
+    "zig",
 }
 require("nvim-treesitter").install(vim.g.treesitter_parsers)
 -- Highlight with treesitter wherever a parser exists; others keep regex syntax.
@@ -188,6 +241,7 @@ local servers = {
     pyright = "pyright-langserver",
     ruff = "ruff",
     rust_analyzer = "rust-analyzer",
+    zls = "zls",
 }
 for server, binary in pairs(servers) do
     if vim.fn.executable(binary) == 1 then
@@ -235,6 +289,7 @@ require("conform").setup({
         yaml = { "prettier" },
         php = { "pint" },
         python = { "ruff_format" },
+        zig = { "zigfmt" },
     },
 })
 
