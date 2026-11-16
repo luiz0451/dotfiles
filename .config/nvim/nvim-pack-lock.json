@@ -39,14 +39,6 @@
     "seoul256": {
       "rev": "0357ff3e44faab66c98bc98dfc89c834e37012da",
       "src": "https://github.com/junegunn/seoul256.vim"
-    },
-    "telescope": {
-      "rev": "40aedd8a68c78a656a10a8d62d80c54af59420fb",
-      "src": "https://github.com/nvim-telescope/telescope.nvim"
-    },
-    "telescope-fzf-native": {
-      "rev": "b25b749b9db64d375d782094e2b9dce53ad53a40",
-      "src": "https://github.com/nvim-telescope/telescope-fzf-native.nvim"
     }
   }
 }

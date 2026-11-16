@@ -1,21 +1,8 @@
 vim.g.mapleader = " "
 
--- telescope-fzf-native ships C sources; build them whenever vim.pack installs
--- or updates it. Registered before vim.pack.add so the first install builds too.
-vim.api.nvim_create_autocmd("PackChanged", {
-    group = vim.api.nvim_create_augroup("pack-build", { clear = true }),
-    callback = function(ev)
-        local data = ev.data
-        if data.spec.name == "telescope-fzf-native" and (data.kind == "install" or data.kind == "update") then
-            vim.system({ "make" }, { cwd = data.path }):wait()
-        end
-    end,
-})
-
 vim.pack.add({
     { src = "https://github.com/junegunn/seoul256.vim", name = "seoul256" },
     { src = "https://github.com/nvim-lua/plenary.nvim", name = "plenary" },
-    { src = "https://github.com/nvim-telescope/telescope.nvim", name = "telescope" },
     { src = "https://github.com/kdheepak/lazygit.nvim", name = "lazygit" },
     { src = "https://github.com/sindrets/diffview.nvim", name = "diffview" },
     { src = "https://github.com/echasnovski/mini.nvim", name = "mini" },
@@ -24,7 +11,6 @@ vim.pack.add({
     { src = "https://github.com/stevearc/conform.nvim", name = "conform" },
     { src = "https://github.com/mfussenegger/nvim-lint", name = "nvim-lint" },
     { src = "https://github.com/3rd/image.nvim", name = "image" },
-    { src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim", name = "telescope-fzf-native" },
 }, { confirm = false })
 
 -- seoul256, darkest variant (233); this range also selects the dark style.
@@ -117,6 +103,36 @@ require("mini.notify").setup({
     -- pyright reports "Analyzing..." progress on every edit, which spams popups
     lsp_progress = { enable = false },
 })
+require("mini.cmdline").setup()
+
+-- Indent scope line plus ii/ai textobjects and [i/]i jumps; off where indentation
+-- means nothing (help, start screen, terminals such as the lazygit float).
+require("mini.indentscope").setup()
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("indentscope-off", { clear = true }),
+    pattern = { "help", "ministarter" },
+    callback = function()
+        vim.b.miniindentscope_disable = true
+    end,
+})
+vim.api.nvim_create_autocmd("TermOpen", {
+    group = "indentscope-off",
+    callback = function()
+        vim.b.miniindentscope_disable = true
+    end,
+})
+
+-- Paint hex colors (#e17899) in their own color; highlight TODO/FIXME/HACK/NOTE.
+local hipatterns = require("mini.hipatterns")
+hipatterns.setup({
+    highlighters = {
+        fixme = { pattern = "%f[%w]()FIXME()%f[%W]", group = "MiniHipatternsFixme" },
+        hack = { pattern = "%f[%w]()HACK()%f[%W]", group = "MiniHipatternsHack" },
+        todo = { pattern = "%f[%w]()TODO()%f[%W]", group = "MiniHipatternsTodo" },
+        note = { pattern = "%f[%w]()NOTE()%f[%W]", group = "MiniHipatternsNote" },
+        hex_color = hipatterns.gen_highlighter.hex_color(),
+    },
+})
 
 -- Editing ---------------------------------------------------------------------
 
@@ -125,6 +141,12 @@ vim.keymap.set({ "n", "x" }, "s", "<Nop>")
 require("mini.surround").setup()
 require("mini.pairs").setup()
 require("mini.cursorword").setup()
+-- Textobjects: f (call), a (argument), q (quote), b (bracket), t (tag); with
+-- n/l for the next/last one, e.g. cin" or dal.
+require("mini.ai").setup()
+require("mini.splitjoin").setup() -- gS: one line <-> one item per line
+require("mini.bufremove").setup()
+require("mini.files").setup()
 require("mini.move").setup({
     mappings = {
         left = "",
@@ -161,38 +183,36 @@ vim.api.nvim_create_autocmd({ "TermEnter", "WinResized", "VimResized" }, {
     end,
 })
 
--- Telescope -------------------------------------------------------------------
+-- Pickers ---------------------------------------------------------------------
 
-local telescope_actions = require("telescope.actions")
-require("telescope").setup({
-    defaults = {
-        layout_strategy = "horizontal",
-        layout_config = {
-            horizontal = {
-                preview_width = 0.55,
-                -- Telescope hides the preview below 120 columns by default.
-                preview_cutoff = 1,
-            },
-        },
-        mappings = {
-            i = {
-                ["<C-j>"] = telescope_actions.move_selection_next,
-                ["<C-k>"] = telescope_actions.move_selection_previous,
-                ["<C-d>"] = telescope_actions.preview_scrolling_down,
-                ["<C-u>"] = telescope_actions.preview_scrolling_up,
-                ["<C-f>"] = telescope_actions.preview_scrolling_right,
-                ["<C-b>"] = telescope_actions.preview_scrolling_left,
-            },
-            n = {
-                ["<C-d>"] = telescope_actions.preview_scrolling_down,
-                ["<C-u>"] = telescope_actions.preview_scrolling_up,
-                ["<C-f>"] = telescope_actions.preview_scrolling_right,
-                ["<C-b>"] = telescope_actions.preview_scrolling_left,
-            },
-        },
+require("mini.pick").setup({
+    -- Keys inside the picker, kept from the old Telescope setup. <C-u> scrolls
+    -- the preview, so the prompt-clearing default moves off it (<C-w> deletes a word).
+    mappings = {
+        move_down = "<C-j>",
+        move_up = "<C-k>",
+        scroll_down = "<C-d>",
+        scroll_up = "<C-u>",
+        scroll_right = "<C-f>",
+        scroll_left = "<C-b>",
+        delete_left = "",
+    },
+    -- Centered and large; <Tab> swaps the list for the preview.
+    window = {
+        config = function()
+            local height = math.floor(0.7 * vim.o.lines)
+            local width = math.floor(0.7 * vim.o.columns)
+            return {
+                anchor = "NW",
+                height = height,
+                width = width,
+                row = math.floor(0.5 * (vim.o.lines - height)),
+                col = math.floor(0.5 * (vim.o.columns - width)),
+            }
+        end,
     },
 })
-require("telescope").load_extension("fzf")
+require("mini.extra").setup()
 
 -- Treesitter ------------------------------------------------------------------
 
@@ -378,27 +398,43 @@ end, { range = true, desc = "Toggle Markdown checkboxes" })
 
 -- Keymaps ---------------------------------------------------------------------
 
-local telescope = require("telescope.builtin")
+local pick = MiniPick.builtin
+local extra = MiniExtra.pickers
 
 local function map(lhs, rhs, description)
     vim.keymap.set("n", lhs, rhs, { desc = description })
 end
 
-map("<leader>ff", telescope.find_files, "Files")
+-- Visual selection as a literal ripgrep pattern.
+local function grep_selection()
+    local lines = vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."), { type = vim.fn.mode() })
+    local text = table.concat(lines, "\n"):gsub("[\\%.%+%*%?%(%)|%[%]{}%^%$]", "\\%0")
+    vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "nx", false)
+    pick.grep({ pattern = text })
+end
+
+map("<leader>ff", pick.files, "Files")
 map("<leader>fc", function()
-    telescope.find_files({ cwd = vim.fn.expand("%:p:h") })
+    pick.files(nil, { source = { cwd = vim.fn.expand("%:p:h") } })
 end, "Files here")
-map("<leader>fg", telescope.live_grep, "Search")
-vim.keymap.set("x", "<leader>fg", telescope.grep_string, { desc = "Search selected text" })
-map("<leader>fb", telescope.buffers, "Buffers")
-map("<leader>fh", telescope.help_tags, "Help tags")
+map("<leader>fg", pick.grep_live, "Search")
+vim.keymap.set("x", "<leader>fg", grep_selection, { desc = "Search selected text" })
+map("<leader>fb", pick.buffers, "Buffers")
+map("<leader>fh", pick.help, "Help tags")
 map("<leader>fr", function()
-    telescope.oldfiles({ cwd_only = true })
+    extra.oldfiles({ current_dir = true })
 end, "Recent files (this project)")
-map("<leader>f.", telescope.resume, "Resume last search")
+map("<leader>f.", pick.resume, "Resume last search")
 map("<leader>fm", function()
     require("conform").format({ async = true, lsp_format = "fallback" })
 end, "Format buffer")
+
+-- File explorer at the current file (or the cwd for unsaved buffers); edit the
+-- listing like text, then = to apply.
+map("<leader>e", function()
+    local path = vim.api.nvim_buf_get_name(0)
+    MiniFiles.open(vim.uv.fs_stat(path) and path or nil)
+end, "File explorer")
 
 map("<leader>gg", "<cmd>LazyGit<cr>", "Git UI")
 map("<leader>gd", function()
@@ -412,12 +448,16 @@ map("<leader>gh", "<cmd>DiffviewFileHistory %<cr>", "File history")
 map("<leader>gH", "<cmd>DiffviewFileHistory<cr>", "Repo history")
 
 map("<leader>bn", "<cmd>enew<cr>", "New buffer")
-map("<leader>bd", "<cmd>bdelete<cr>", "Close buffer")
+map("<leader>bd", function()
+    MiniBufremove.delete()
+end, "Close buffer (keep window)")
 
 map("<leader>dd", function()
-    telescope.diagnostics({ bufnr = 0 })
+    extra.diagnostic({ scope = "current" })
 end, "Buffer diagnostics")
-map("<leader>dw", telescope.diagnostics, "Workspace diagnostics")
+map("<leader>dw", function()
+    extra.diagnostic({ scope = "all" })
+end, "Workspace diagnostics")
 map("<leader>de", vim.diagnostic.open_float, "Line diagnostic")
 -- Show the messages of the cursor line under it (Neovim 0.11+ hides them by default).
 vim.diagnostic.config({ virtual_lines = { current_line = true } })
