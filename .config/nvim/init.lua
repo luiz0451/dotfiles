@@ -43,6 +43,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
             SpellCap = { sp = "#98bede", undercurl = true },
             SpellLocal = { sp = "#bce0ff", undercurl = true },
             SpellRare = { sp = "#ffc0de", undercurl = true },
+            -- seoul256's CursorLine has the same bg as floats, so the current
+            -- item in mini.pick / mini.files was invisible; use the tmux menu gray.
+            MiniPickMatchCurrent = { bg = "#333233" },
+            MiniFilesCursorLine = { bg = "#333233" },
         }
         for name, spec in pairs(hl) do
             vim.api.nvim_set_hl(0, name, spec)
