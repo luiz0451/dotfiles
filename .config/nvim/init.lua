@@ -495,22 +495,6 @@ map("<leader>l", "<cmd>Lint<cr>", "Lint")
 map("gd", vim.lsp.buf.definition, "Go to definition")
 map("<Esc>", "<cmd>nohlsearch<cr>", "Clear search highlight")
 
--- <C-h/j/k/l>: move between splits; at the edge, hand off to the tmux pane there
--- (~/.tmux.conf sends these keys to nvim instead of switching panes itself).
-local function navigate(key, tmux_flag)
-    return function()
-        local win = vim.api.nvim_get_current_win()
-        vim.cmd.wincmd(key)
-        if vim.api.nvim_get_current_win() == win and vim.env.TMUX then
-            vim.system({ "tmux", "select-pane", tmux_flag })
-        end
-    end
-end
-map("<C-h>", navigate("h", "-L"), "Left split or tmux pane")
-map("<C-j>", navigate("j", "-D"), "Lower split or tmux pane")
-map("<C-k>", navigate("k", "-U"), "Upper split or tmux pane")
-map("<C-l>", navigate("l", "-R"), "Right split or tmux pane")
-
 -- Built-in commenting (gc) on <leader>c in Visual mode.
 vim.keymap.set("x", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
