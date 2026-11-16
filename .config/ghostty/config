@@ -26,6 +26,10 @@ font-family = "FiraMono Nerd Font"
 
 macos-option-as-alt = true
 
+# Every window/tab attaches to the tmux session "personal" (created if missing).
+# Plain shell instead: ghostty -e zsh
+command = /opt/homebrew/bin/tmux new-session -A -s personal
+
 shell-integration-features = ssh-terminfo,ssh-env,no-cursor,no-title
 
 # Text smoothing

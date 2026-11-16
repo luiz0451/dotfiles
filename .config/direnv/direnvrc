@@ -1,0 +1,8 @@
+# `layout uv` in an .envrc: create .venv with uv on first use, then activate it
+# (VIRTUAL_ENV + PATH) whenever you cd in; uv commands use the same venv.
+layout_uv() {
+  [[ -d .venv ]] || uv venv --quiet
+  VIRTUAL_ENV="$PWD/.venv"
+  PATH_add "$VIRTUAL_ENV/bin"
+  export VIRTUAL_ENV UV_PROJECT_ENVIRONMENT="$VIRTUAL_ENV"
+}
