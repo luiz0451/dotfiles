@@ -85,6 +85,20 @@ vim.o.shiftwidth = 4
 vim.o.softtabstop = 4
 vim.o.expandtab = true
 vim.o.clipboard = "unnamedplus"
+-- Over SSH there is no system clipboard: yank goes to the local one via OSC 52
+-- (through both tmuxes to Ghostty). Paste reads Neovim's own register, since
+-- terminals answer OSC 52 reads slowly or not at all; paste from the Mac with Cmd+V.
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
+    local osc52 = require("vim.ui.clipboard.osc52")
+    local function paste()
+        return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+    end
+    vim.g.clipboard = {
+        name = "OSC 52",
+        copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+        paste = { ["+"] = paste, ["*"] = paste },
+    }
+end
 vim.o.confirm = true
 vim.o.updatetime = 250
 vim.o.completeopt = "menu,menuone,noselect,popup"

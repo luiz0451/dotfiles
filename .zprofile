@@ -1,8 +1,8 @@
 # Login shells (Ghostty and every tmux pane): PATH and fpath, set once.
 typeset -U path fpath
 
-# Homebrew: PATH, MANPATH, INFOPATH and its zsh completions on fpath.
-eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+# Homebrew (macOS only): PATH, MANPATH, INFOPATH and its zsh completions on fpath.
+[[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 
 # Docker Desktop CLI
 path+=("$HOME/.docker/bin")

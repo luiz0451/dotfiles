@@ -12,6 +12,16 @@ $line_break\
 $python\
 $character"""
 
+# Only over SSH: user@host before the folder.
+[username]
+format = "[$user]($style)"
+style_user = "bright-black"
+
+[hostname]
+format = "[@$hostname]($style) "
+style = "bright-black"
+ssh_only = true
+
 [directory]
 style = "blue"
 

@@ -80,12 +80,15 @@ eval "$(starship init zsh)"
 # Atuin: searchable history on Ctrl-R. Up-arrow stays with history-substring-search.
 eval "$(atuin init zsh --disable-up-arrow)"
 
-# 8. Command feedback (brew plugins; highlighting must load last)
+# 8. Command feedback (highlighting must load last). Homebrew on macOS,
+# /usr/share on Debian.
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-[[ -r /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] \
-  && source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-[[ -r /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] \
-  && source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+for _p in zsh-autosuggestions/zsh-autosuggestions.zsh zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  for _d in /opt/homebrew/share /usr/share; do
+    [[ -r $_d/$_p ]] && { source $_d/$_p; break }
+  done
+done
+unset _p _d
 
 # 9. Aliases
 alias ls='eza'
@@ -131,22 +134,28 @@ clone() {
   mkdir -p ~/git/$group && git -C ~/git/$group clone "$url" && cd ~/git/$group/$repo
 }
 
-# up: update what lives outside the dotfiles, one step after another: Homebrew,
-# Oh My Zsh, fzf-tab, tmux plugins, Neovim plugins and treesitter parsers.
+# up: update what lives outside the dotfiles, one step after another. macOS:
+# Homebrew and tmux plugins; Debian: ~/install-debian.sh (user-space tools).
+# Both: Oh My Zsh, fzf-tab, Neovim plugins and treesitter parsers.
 # Lists the Neovim plugin changes at the end and which steps failed, if any.
 up() {
   local -a failed
   local log="$HOME/.local/state/nvim/nvim-pack.log" before=0
   [[ -f $log ]] && before=$(wc -c <"$log")
 
-  print -P '%B==> Homebrew%b'
-  { brew update && brew upgrade } || failed+=(brew)
+  if [[ $OSTYPE == darwin* ]]; then
+    print -P '%B==> Homebrew%b'
+    { brew update && brew upgrade } || failed+=(brew)
+    print -P '\n%B==> tmux plugins%b'
+    /opt/homebrew/opt/tpm/share/tpm/bin/update_plugins all || failed+=(tmux)
+  elif [[ -x ~/install-debian.sh ]]; then
+    print -P '%B==> Tools (~/install-debian.sh)%b'
+    ~/install-debian.sh || failed+=(tools)
+  fi
   print -P '\n%B==> Oh My Zsh%b'
   "$ZSH/tools/upgrade.sh" || failed+=(oh-my-zsh)
   print -P '\n%B==> fzf-tab%b'
   git -C "$ZSH/custom/plugins/fzf-tab" pull --ff-only || failed+=(fzf-tab)
-  print -P '\n%B==> tmux plugins%b'
-  /opt/homebrew/opt/tpm/share/tpm/bin/update_plugins all || failed+=(tmux)
   print -P '\n%B==> Neovim plugins and parsers%b'
   nvim --headless '+lua vim.pack.update(nil, { force = true })' \
     "+lua require('nvim-treesitter').update():wait(300000)" +qa || failed+=(nvim)
@@ -171,3 +180,7 @@ ssh() {
   fi
   return $ret
 }
+
+# Machine-specific additions (untracked on the Mac; the server branch tracks the
+# Debian one). Last, so it can override anything above.
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
