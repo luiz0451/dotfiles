@@ -1,3 +1,6 @@
 gui:
   showRandomTip: false
   showCommandLog: false
+git:
+  diffRenderers:
+    - command: delta --paging=never

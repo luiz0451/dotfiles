@@ -74,6 +74,11 @@ brew "yazi"
 brew "jq"
 brew "lazygit"
 brew "can1357/tap/omp"
+brew "gh"
+# languages and runtimes used day to day
+brew "uv"
+brew "bun"
+brew "zig"
 # neovim and what its config calls
 brew "neovim"
 brew "tree-sitter-cli"
@@ -83,6 +88,12 @@ brew "pyright"
 brew "typescript-language-server"
 brew "lua-language-server"
 brew "rust-analyzer"
+brew "zls"
+# conform/nvim-lint in init.lua: skipped silently when missing
+brew "prettier"
+brew "hadolint"
+brew "markdownlint-cli2"
+brew "yamllint"
 EOF
   "$BREW" bundle --no-upgrade --file="$brewfile" </dev/null
   rm -f -- "$brewfile"

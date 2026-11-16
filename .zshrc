@@ -111,6 +111,26 @@ y() {
   rm -f -- "$tmp"
 }
 
+# clone <url> [group]: clone into ~/git/<group> and cd in. The group comes from
+# the host (forgejo, github, codeberg) unless given, e.g. `clone <url> elattes`.
+# Shortcuts from git's url.insteadOf work: `clone fj:bsh`.
+clone() {
+  (( $# )) || { print -u2 'usage: clone <url> [group]'; return 2 }
+  local url group repo
+  url=$(git ls-remote --get-url "$1")        # expands insteadOf shortcuts
+  group=$2
+  if [[ -z $group ]]; then
+    case $url in
+      *forgejo*)      group=forgejo ;;
+      *github.com*)   group=github ;;
+      *codeberg.org*) group=codeberg ;;
+      *) print -u2 "clone: unknown host in $url; pass the group: clone <url> <group>"; return 2 ;;
+    esac
+  fi
+  repo=${${url:t}%.git}
+  mkdir -p ~/git/$group && git -C ~/git/$group clone "$url" && cd ~/git/$group/$repo
+}
+
 # Tint the background while an interactive SSH session is open
 # (per pane inside tmux, which would otherwise swallow the OSC 11).
 ssh() {

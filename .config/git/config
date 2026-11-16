@@ -27,3 +27,7 @@
 [user]
 	name = luiz0451
 	email = luizgust.x@gmail.com
+# Machine-local, untracked (this repo is public): private hosts, url shortcuts
+# such as `fj:` for Forgejo. Missing file is fine.
+[include]
+	path = local

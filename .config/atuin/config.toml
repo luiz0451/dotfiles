@@ -2,3 +2,9 @@
 style = "compact"
 inline_height = 20
 enter_accept = false
+workspaces = true
+
+# Inside a git repo, Ctrl-R starts filtered to that repo's history (Ctrl-R
+# again cycles to global); outside a repo "workspace" is skipped.
+[search]
+filters = ["workspace", "global", "host", "session", "directory"]
