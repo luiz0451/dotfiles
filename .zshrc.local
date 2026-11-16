@@ -1,0 +1,36 @@
+# Debian server additions, sourced last by ~/.zshrc (server branch only).
+
+# Toolchains installed on this machine.
+export BUN_INSTALL="$HOME/.bun"
+path=("$BUN_INSTALL/bin" $path)
+[[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
+[[ -f "$HOME/.ghcup/env" ]] && source "$HOME/.ghcup/env"
+export PNPM_HOME="$HOME/.local/share/pnpm"
+path=("$PNPM_HOME/bin" $path)
+(( $+commands[docker] )) && source <(docker completion zsh)
+
+# nvm loads on the first node/npm/npx/nvm call instead of at every prompt.
+export NVM_DIR="$HOME/.nvm"
+_nvm_lazy() {
+  unfunction node npm npx nvm 2>/dev/null
+  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+}
+for _c in node npm npx nvm; do
+  eval "$_c() { _nvm_lazy; $_c \"\$@\" }"
+done
+unset _c
+
+# Server habits: git verbs without "git" (clone stays plain `git clone` here,
+# repos live in ~ rather than ~/git), the dotfiles repo, Laravel Sail.
+alias add='git add'
+alias commit='git commit -m'
+alias push='git push'
+alias clone='git clone'
+alias pull='git pull'
+alias dots='git --git-dir="$HOME/.dotfiles.git" --work-tree="$HOME"'
+alias sail='./vendor/bin/sail'
+
+mkcd() {
+  (( $# == 1 )) || { print -u2 'uso: mkcd diretorio'; return 2 }
+  mkdir -p -- "$1" && cd -- "$1"
+}

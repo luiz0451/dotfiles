@@ -1,0 +1,4 @@
+# Server branch: .tmux.conf here is the server's own (a passthrough tmux under
+# the Mac's), so `git merge master` keeps it. Needs `merge.ours.driver true`
+# in the clone (install-debian.sh sets it).
+.tmux.conf merge=ours

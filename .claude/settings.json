@@ -1,0 +1,59 @@
+{
+  "model": "sonnet",
+  "enabledPlugins": {
+    "php-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true
+  },
+  "modelSettings": {
+    "claude-haiku-5-5": {
+      "effortLevel": "low"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "pluginConfigs": {
+    "cc-plugin-agents-md@builtin": {
+      "options": {
+        "instructionFiles": "claude-md-or-agents-md"
+      }
+    }
+  },
+  "theme": "auto",
+  "editorMode": "vim",
+  "autoCompactEnabled": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: Not queryable here (no git remotes configured in this repo) — assume private; this repo has no remotes at all, so no push destination currently exists",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: unknown — origin/HEAD unset, no remotes configured",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine or CI runner with open internet",
+      "**Source control**: The trusted repo only — this repo currently has no configured remotes",
+      "**Trusted internal domains**: *.bullhead-kingsnake.ts.net, *.tail849f97.ts.net (Tailscale-based hosts repeatedly contacted from this project: securo, paperless, debian, livros, memos, glance, forgejo)",
+      "**Trusted cloud buckets**: None configured — bucket config scan did not complete cleanly, treat as unavailable not absent",
+      "**Key internal services**: securo.bullhead-kingsnake.ts.net, paperless.bullhead-kingsnake.ts.net, memos.bullhead-kingsnake.ts.net, forgejo.bullhead-kingsnake.ts.net, livros.bullhead-kingsnake.ts.net, glance.bullhead-kingsnake.ts.net (repeatedly contacted internal hosts over Tailscale in this project's transcripts)",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: .claude/.credentials.json, .hermes/.env and its backups/locks, .hermes/google_client_secret.json, forgejo/.env, securo/.env and its backups/example, securo/docker-compose.prod.yml, songbird/.env and .env.example, calibre/config/client_secrets.json — share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries prod or production as a whole word or segment; note securo/docker-compose.prod.yml and .oh-my-zsh/plugins/kubectx/prod.png reference a prod context",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries prod or production as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development",
+      "**Trusted repo**: The git repository at /home/user (its working directory) — currently has no configured remotes, so no remote push destination is trusted yet",
+      "**Org-specific CLIs**: tailscale, sg (frequently used non-standard CLIs in this project; no org affiliation evidenced beyond this host)",
+      "routine under /home/user/ prefix: none configured"
+    ]
+  }
+}
