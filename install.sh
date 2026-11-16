@@ -56,6 +56,7 @@ install_packages() {
   cat >"$brewfile" <<'EOF'
 # shell
 brew "tmux"
+brew "tpm"
 brew "starship"
 brew "eza"
 brew "fzf"
@@ -164,14 +165,9 @@ install_zsh_plugins() {
 
 install_tmux_plugins() {
   log "tmux plugins (tpm)"
-  local tpm="$HOME/.tmux/plugins/tpm"
-  if [[ -d "$tpm" ]]; then
-    printf '  tpm already installed\n'
-  else
-    git clone --depth=1 https://github.com/tmux-plugins/tpm "$tpm"
-  fi
-  # Reads the @plugin lines from ~/.tmux.conf; no tmux server needed.
-  "$tpm/bin/install_plugins" </dev/null
+  # tpm comes from the Brewfile; it reads the @plugin lines from ~/.tmux.conf
+  # and clones them into ~/.tmux/plugins. No tmux server needed.
+  "$("$BREW" --prefix)/opt/tpm/share/tpm/bin/install_plugins" </dev/null
 }
 
 bootstrap_neovim() {

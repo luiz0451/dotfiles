@@ -1,5 +1,17 @@
 vim.g.mapleader = " "
 
+-- telescope-fzf-native ships C sources; build them whenever vim.pack installs
+-- or updates it. Registered before vim.pack.add so the first install builds too.
+vim.api.nvim_create_autocmd("PackChanged", {
+    group = vim.api.nvim_create_augroup("pack-build", { clear = true }),
+    callback = function(ev)
+        local data = ev.data
+        if data.spec.name == "telescope-fzf-native" and (data.kind == "install" or data.kind == "update") then
+            vim.system({ "make" }, { cwd = data.path }):wait()
+        end
+    end,
+})
+
 vim.pack.add({
     { src = "https://github.com/junegunn/seoul256.vim", name = "seoul256" },
     { src = "https://github.com/nvim-lua/plenary.nvim", name = "plenary" },
@@ -12,6 +24,7 @@ vim.pack.add({
     { src = "https://github.com/stevearc/conform.nvim", name = "conform" },
     { src = "https://github.com/mfussenegger/nvim-lint", name = "nvim-lint" },
     { src = "https://github.com/3rd/image.nvim", name = "image" },
+    { src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim", name = "telescope-fzf-native" },
 }, { confirm = false })
 
 -- seoul256, darkest variant (233); this range also selects the dark style.
@@ -179,6 +192,7 @@ require("telescope").setup({
         },
     },
 })
+require("telescope").load_extension("fzf")
 
 -- Treesitter ------------------------------------------------------------------
 
@@ -291,7 +305,18 @@ require("conform").setup({
         python = { "ruff_format" },
         zig = { "zigfmt" },
     },
+    -- Format on save; :FormatToggle switches it off/on for the current buffer.
+    format_on_save = function(bufnr)
+        if vim.b[bufnr].disable_autoformat then
+            return
+        end
+        return { timeout_ms = 1000, lsp_format = "fallback" }
+    end,
 })
+vim.api.nvim_create_user_command("FormatToggle", function()
+    vim.b.disable_autoformat = not vim.b.disable_autoformat
+    vim.notify("Format on save " .. (vim.b.disable_autoformat and "off" or "on") .. " for this buffer")
+end, { desc = "Toggle format on save for this buffer" })
 
 local lint = require("lint")
 lint.linters_by_ft = {
@@ -367,6 +392,10 @@ map("<leader>fg", telescope.live_grep, "Search")
 vim.keymap.set("x", "<leader>fg", telescope.grep_string, { desc = "Search selected text" })
 map("<leader>fb", telescope.buffers, "Buffers")
 map("<leader>fh", telescope.help_tags, "Help tags")
+map("<leader>fr", function()
+    telescope.oldfiles({ cwd_only = true })
+end, "Recent files (this project)")
+map("<leader>f.", telescope.resume, "Resume last search")
 map("<leader>fm", function()
     require("conform").format({ async = true, lsp_format = "fallback" })
 end, "Format buffer")
@@ -390,10 +419,29 @@ map("<leader>dd", function()
 end, "Buffer diagnostics")
 map("<leader>dw", telescope.diagnostics, "Workspace diagnostics")
 map("<leader>de", vim.diagnostic.open_float, "Line diagnostic")
+-- Show the messages of the cursor line under it (Neovim 0.11+ hides them by default).
+vim.diagnostic.config({ virtual_lines = { current_line = true } })
 
 map("<leader>l", "<cmd>Lint<cr>", "Lint")
 map("gd", vim.lsp.buf.definition, "Go to definition")
 map("<Esc>", "<cmd>nohlsearch<cr>", "Clear search highlight")
+
+-- <C-h/j/k/l>: move between splits; at the edge, hand off to the tmux pane there
+-- (~/.tmux.conf sends these keys to nvim instead of switching panes itself).
+local function navigate(key, tmux_flag)
+    return function()
+        local win = vim.api.nvim_get_current_win()
+        vim.cmd.wincmd(key)
+        if vim.api.nvim_get_current_win() == win and vim.env.TMUX then
+            vim.system({ "tmux", "select-pane", tmux_flag })
+        end
+    end
+end
+map("<C-h>", navigate("h", "-L"), "Left split or tmux pane")
+map("<C-j>", navigate("j", "-D"), "Lower split or tmux pane")
+map("<C-k>", navigate("k", "-U"), "Upper split or tmux pane")
+map("<C-l>", navigate("l", "-R"), "Right split or tmux pane")
+
 -- Built-in commenting (gc) on <leader>c in Visual mode.
 vim.keymap.set("x", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
