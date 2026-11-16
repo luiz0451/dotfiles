@@ -117,8 +117,22 @@ require("mini.notify").setup({
     lsp_progress = { enable = false },
 })
 require("mini.cmdline").setup()
--- Open buffers as tabs along the top; [b / ]b (Neovim defaults) cycle them.
+-- Open buffers as tabs along the top, shown only with 2+ buffers (or tab pages);
+-- [b / ]b (Neovim defaults) cycle them. mini.tabline forces showtabline=2 on
+-- setup, so this autocmd takes over after it.
 require("mini.tabline").setup({ show_icons = false })
+local function update_showtabline()
+    local many = #vim.fn.getbufinfo({ buflisted = 1 }) > 1 or vim.fn.tabpagenr("$") > 1
+    vim.o.showtabline = many and 2 or 0
+end
+vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "BufWipeout", "TabNew", "TabClosed", "VimEnter" }, {
+    group = vim.api.nvim_create_augroup("tabline-auto", { clear = true }),
+    -- Deferred: on BufDelete the buffer still counts as listed.
+    callback = function()
+        vim.schedule(update_showtabline)
+    end,
+})
+update_showtabline()
 
 -- Indent scope line plus ii/ai textobjects and [i/]i jumps; off where indentation
 -- means nothing (help, start screen, terminals such as the lazygit float).
