@@ -47,6 +47,15 @@ vim.api.nvim_create_autocmd("ColorScheme", {
             -- item in mini.pick / mini.files was invisible; use the tmux menu gray.
             MiniPickMatchCurrent = { bg = "#333233" },
             MiniFilesCursorLine = { bg = "#333233" },
+            -- Buffer tabs in the tmux status bar's colors (seoul256's hidden
+            -- tabs were #333233 on #4b4b4b, unreadable); modified ones in red.
+            MiniTablineCurrent = { fg = "#e19972", bg = "#333233", bold = true },
+            MiniTablineVisible = { fg = "#bfbfbf", bg = "#171717" },
+            MiniTablineHidden = { fg = "#8a8a8a", bg = "#171717" },
+            MiniTablineModifiedCurrent = { fg = "#e17899", bg = "#333233", bold = true },
+            MiniTablineModifiedVisible = { fg = "#e17899", bg = "#171717" },
+            MiniTablineModifiedHidden = { fg = "#e17899", bg = "#171717" },
+            MiniTablineFill = { bg = "#171717" },
         }
         for name, spec in pairs(hl) do
             vim.api.nvim_set_hl(0, name, spec)
@@ -108,6 +117,8 @@ require("mini.notify").setup({
     lsp_progress = { enable = false },
 })
 require("mini.cmdline").setup()
+-- Open buffers as tabs along the top; [b / ]b (Neovim defaults) cycle them.
+require("mini.tabline").setup({ show_icons = false })
 
 -- Indent scope line plus ii/ai textobjects and [i/]i jumps; off where indentation
 -- means nothing (help, start screen, terminals such as the lazygit float).
