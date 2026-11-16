@@ -131,6 +131,31 @@ clone() {
   mkdir -p ~/git/$group && git -C ~/git/$group clone "$url" && cd ~/git/$group/$repo
 }
 
+# up: update what lives outside the dotfiles, one step after another: Homebrew,
+# Oh My Zsh, fzf-tab, tmux plugins, Neovim plugins and treesitter parsers.
+# Lists the Neovim plugin changes at the end and which steps failed, if any.
+up() {
+  local -a failed
+  local log="$HOME/.local/state/nvim/nvim-pack.log" before=0
+  [[ -f $log ]] && before=$(wc -c <"$log")
+
+  print -P '%B==> Homebrew%b'
+  { brew update && brew upgrade } || failed+=(brew)
+  print -P '\n%B==> Oh My Zsh%b'
+  "$ZSH/tools/upgrade.sh" || failed+=(oh-my-zsh)
+  print -P '\n%B==> fzf-tab%b'
+  git -C "$ZSH/custom/plugins/fzf-tab" pull --ff-only || failed+=(fzf-tab)
+  print -P '\n%B==> tmux plugins%b'
+  /opt/homebrew/opt/tpm/share/tpm/bin/update_plugins all || failed+=(tmux)
+  print -P '\n%B==> Neovim plugins and parsers%b'
+  nvim --headless '+lua vim.pack.update(nil, { force = true })' \
+    "+lua require('nvim-treesitter').update():wait(300000)" +qa || failed+=(nvim)
+  [[ -f $log ]] && tail -c +$((before + 1)) "$log"
+
+  if (( $#failed )); then print -P "\n%F{red}failed:%f ${(j:, :)failed}"; return 1; fi
+  print -P '\n%F{green}everything up to date%f'
+}
+
 # Tint the background while an interactive SSH session is open
 # (per pane inside tmux, which would otherwise swallow the OSC 11).
 ssh() {
